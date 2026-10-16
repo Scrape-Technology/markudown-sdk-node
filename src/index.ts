@@ -166,16 +166,6 @@ export interface MonitorCreateOptions {
   timeout?: number;
 }
 
-export type InstagramResource = "profile" | "post" | "hashtag" | "search";
-export type XResource = "profile" | "post" | "search";
-
-export interface SocialOptions {
-  limit?: number;
-  sessionCookie?: string;
-  callbackUrl?: string;
-  wait?: boolean;
-}
-
 export interface JobResponse {
   success: boolean;
   id: string;
@@ -589,54 +579,6 @@ export class MarkUDown {
    */
   async monitorDelete(subscriptionId: string): Promise<unknown> {
     return this._request("DELETE", `/api/monitor/${subscriptionId}`);
-  }
-
-  // ── Social Media ────────────────────────────────────────────────────────────
-
-  /**
-   * Extract public Instagram data.
-   *
-   * @param resource - "profile" | "post" | "hashtag" | "search"
-   * @param target   - username, post shortcode, hashtag, or search term
-   *
-   * @example
-   * // Profile
-   * const profile = await md.instagram("profile", "instagram");
-   * // Hashtag
-   * const posts = await md.instagram("hashtag", "webdev", { limit: 30 });
-   */
-  async instagram(resource: InstagramResource, target: string, opts: SocialOptions = {}): Promise<unknown> {
-    const body: Record<string, unknown> = {
-      resource,
-      target,
-      limit: opts.limit ?? 20,
-    };
-    if (opts.sessionCookie) body["session_cookie"] = opts.sessionCookie;
-    if (opts.callbackUrl) body["callback_url"] = opts.callbackUrl;
-    return this._submit("instagram", body, opts.wait ?? true);
-  }
-
-  /**
-   * Extract public X (Twitter) data.
-   *
-   * @param resource - "profile" | "post" | "search"
-   * @param target   - username, tweet ID, or search term
-   *
-   * @example
-   * // Profile
-   * const profile = await md.x("profile", "elonmusk");
-   * // Search
-   * const results = await md.x("search", "web scraping tools", { limit: 25 });
-   */
-  async x(resource: XResource, target: string, opts: SocialOptions = {}): Promise<unknown> {
-    const body: Record<string, unknown> = {
-      resource,
-      target,
-      limit: opts.limit ?? 20,
-    };
-    if (opts.sessionCookie) body["session_cookie"] = opts.sessionCookie;
-    if (opts.callbackUrl) body["callback_url"] = opts.callbackUrl;
-    return this._submit("x", body, opts.wait ?? true);
   }
 
   // ── Job Management ──────────────────────────────────────────────────────────

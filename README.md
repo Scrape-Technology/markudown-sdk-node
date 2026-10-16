@@ -344,47 +344,6 @@ await md.monitorDelete(subId);
 
 ---
 
-### `instagram(resource, target, opts?)` → Promise\<unknown\>
-
-Extract public Instagram data.
-
-| `resource` | `target` | Description |
-|------------|----------|-------------|
-| `"profile"` | username | Profile info + recent posts |
-| `"post"` | shortcode | Single post |
-| `"hashtag"` | hashtag | Recent posts for a hashtag |
-| `"search"` | keyword | Search results |
-
-```typescript
-// Profile
-const profile = await md.instagram("profile", "instagram");
-
-// Hashtag
-const posts = await md.instagram("hashtag", "webdev", { limit: 30 });
-
-// Search
-const results = await md.instagram("search", "coffee shops NYC");
-```
-
----
-
-### `x(resource, target, opts?)` → Promise\<unknown\>
-
-Extract public X (Twitter) data.
-
-| `resource` | `target` | Description |
-|------------|----------|-------------|
-| `"profile"` | username | Profile info + recent tweets |
-| `"post"` | tweet ID | Single tweet |
-| `"search"` | keyword | Search results |
-
-```typescript
-const profile = await md.x("profile", "elonmusk");
-const results = await md.x("search", "web scraping tools", { limit: 25 });
-```
-
----
-
 ### Job Management
 
 ```typescript
