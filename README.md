@@ -1,23 +1,28 @@
 # MarkUDown Node.js / TypeScript SDK
 
+[![npm version](https://img.shields.io/npm/v/markudown-sdk.svg)](https://www.npmjs.com/package/markudown-sdk)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
 TypeScript SDK for [MarkUDown](https://scrapetechnology.com/markudown) — AI data extraction infrastructure that turns any website into structured, ready-to-use data.
 
 Requires **Node 18+** (uses native `fetch`). Zero dependencies.
 
+Get a free API key at [scrapetechnology.com/markudown/register](https://scrapetechnology.com/markudown/register) — **500 free credits, no credit card**. Full reference: [scrapetechnology.com/markudown/docs](https://scrapetechnology.com/markudown/docs).
+
 ## Installation
 
 ```bash
-npm install markudown
+npm install markudown-sdk
 # or
-pnpm add markudown
+pnpm add markudown-sdk
 # or
-yarn add markudown
+yarn add markudown-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { MarkUDown } from "markudown";
+import { MarkUDown } from "markudown-sdk";
 
 const md = new MarkUDown({ apiKey: "your-api-key" });
 
@@ -42,7 +47,7 @@ const data = await md.extract(
 );
 ```
 
-Get your API key at [scrapetechnology.com/markudown](https://scrapetechnology.com/markudown). New accounts include **500 free credits**.
+Get your API key at [scrapetechnology.com/markudown/register](https://scrapetechnology.com/markudown/register). New accounts include **500 free credits** (no credit card).
 
 ---
 
@@ -58,7 +63,7 @@ const md = new MarkUDown({
 });
 ```
 
-All async endpoints accept `wait: false` to return the job ID immediately:
+Async endpoints (everything except `scrape`, `screenshot`, `createSchema` and the monitor calls) poll until the job finishes and return the job object — `{ success, id, status: "completed", data: <job result> }` — so the output is under `result.data`. Pass `wait: false` to return the job ID immediately:
 
 ```typescript
 const job = await md.crawl("https://example.com", { wait: false }) as { id: string };
@@ -99,7 +104,7 @@ Take a screenshot of a URL.
 
 ```typescript
 const result = await md.screenshot("https://example.com");
-// result.image → base64 PNG
+// result.screenshot → base64 PNG
 ```
 
 ---
@@ -241,8 +246,8 @@ Detect and diff content changes on a page.
 const result = await md.changeDetection("https://example.com/pricing", {
   includeDiff: true,
 });
-// result.data.changed → true/false
-// result.data.diff    → diff string
+// result.data.data.changed           → true/false
+// result.data.data.previous_markdown → previous content (when changed and includeDiff)
 ```
 
 ---
@@ -360,7 +365,7 @@ await md.cancelJob("agent", "job-id");
 ## Error Handling
 
 ```typescript
-import { MarkUDown, MarkUDownError, RateLimitError, InsufficientCreditsError } from "markudown";
+import { MarkUDown, MarkUDownError, RateLimitError, InsufficientCreditsError } from "markudown-sdk";
 
 const md = new MarkUDown({ apiKey: "your-key" });
 
@@ -376,6 +381,8 @@ try {
   }
 }
 ```
+
+> **Note:** a key the API does not recognise is not rejected — it is served as the anonymous free tier (20 requests/day), and a 429 "Free tier daily limit exceeded" follows once that is used up. If you see that message with a paid key, check the key in your dashboard. Only a missing key returns 401.
 
 ---
 
@@ -393,5 +400,5 @@ npm run typecheck   # type-check without emitting
 
 - [Website](https://scrapetechnology.com/markudown)
 - [Documentation](https://scrapetechnology.com/markudown/docs)
-- [GitHub](https://github.com/Scrape-Technology/MarkUDown-Engine)
+- [GitHub](https://github.com/Scrape-Technology/markudown-sdk-node)
 - [MCP Server](https://github.com/Scrape-Technology/markudown-mcp)
