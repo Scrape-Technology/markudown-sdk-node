@@ -1,6 +1,6 @@
 {
   "name": "markudown-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node.js / TypeScript SDK for MarkUDown — AI data extraction infrastructure",
   "type": "module",
   "main": "dist/index.js",
@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -22,11 +23,25 @@
     "dist/",
     "README.md"
   ],
-  "keywords": ["scraping", "web-scraping", "data-extraction", "ai", "markudown"],
+  "keywords": [
+    "web-scraping",
+    "scraping-api",
+    "scraper",
+    "crawler",
+    "data-extraction",
+    "markdown",
+    "llm",
+    "ai-agents",
+    "rag",
+    "markudown"
+  ],
   "homepage": "https://scrapetechnology.com/markudown",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Scrape-Technology/MarkUDown-Engine"
+    "url": "git+https://github.com/Scrape-Technology/markudown-sdk-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Scrape-Technology/markudown-sdk-node/issues"
   },
   "license": "MIT",
   "engines": {
