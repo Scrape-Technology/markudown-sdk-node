@@ -140,9 +140,9 @@ const result = await md.crawl("https://docs.example.com", {
 | `maxDepth` | number | 2 |
 | `limit` | number | 10 |
 | `timeout` | number | 60 |
-| `includeLinks` | boolean | false |
+| `includeLinks` | boolean | false — adds each page's `links` |
 | `blockedWords` | string[] | [] |
-| `includeOnly` | string[] | [] |
+| `includeOnly` | string[] | [] — only follow URLs containing one of these strings (`*` matches anything); the start URL is always crawled |
 | `mainContent` | boolean | true |
 | `callbackUrl` | string | — |
 | `wait` | boolean | true |
@@ -163,7 +163,7 @@ const result = await md.extract(
   ],
   {
     extractQuery: "Product listings with title, price and availability",
-    extractionScope: "whole_site",
+    extractionScope: "list_page", // a hint for the LLM; Extract only reads `url`
   }
 );
 ```
@@ -271,7 +271,7 @@ const result = await md.deepResearch(
 
 ### `agent(url, prompt, opts?)` → Promise\<unknown\>
 
-AI autonomous navigation agent that clicks, scrolls, and fills forms.
+AI navigation agent: reads the page (scrolling to load lazy content), follows links and answers the prompt. It does not click buttons or fill in forms. `includeScreenshots: true` attaches a base64 PNG (viewport) of each page it reads to that step as `screenshot`.
 
 ```typescript
 const result = await md.agent(
@@ -323,8 +323,9 @@ Auto-paginate a listing page and extract all items as a structured dataset.
 const result = await md.dataset(
   "https://books.toscrape.com",
   "Extract all books with title, price, rating and availability",
-  { maxPages: 10, outputFormat: "json" }
+  { maxPages: 10, outputFormat: "csv" } // "json" (default) or "csv"
 );
+// result.data.data → records (always an array); result.data.csv → CSV text (only with "csv")
 ```
 
 ---
@@ -383,6 +384,8 @@ try {
 ```
 
 > **Note:** a key the API does not recognise is not rejected — it is served as the anonymous free tier (20 requests/day), and a 429 "Free tier daily limit exceeded" follows once that is used up. If you see that message with a paid key, check the key in your dashboard. Only a missing key returns 401.
+
+Polling stops with `MarkUDownError` (`statusCode` 404) when the job is gone — wrong id, or its result expired from the queue — instead of waiting for `pollTimeout`; `JobFailedError` when the job failed.
 
 ---
 

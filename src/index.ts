@@ -37,10 +37,12 @@ export interface CrawlOptions {
   maxDepth?: number;
   limit?: number;
   timeout?: number;
+  /** Add each page's links to its result (`links`). */
   includeLinks?: boolean;
   includeHtml?: boolean;
   excludeTags?: string[];
   blockedWords?: string[];
+  /** Only follow URLs containing one of these strings (`*` matches anything). The start URL is always crawled. */
   includeOnly?: string[];
   mainContent?: boolean;
   callbackUrl?: string;
@@ -57,10 +59,6 @@ export interface ExtractOptions {
   extractQuery?: string;
   extractionScope?: "whole_site" | "category" | "single_page" | "search_query" | "list_page";
   extractionTarget?: string;
-  allowedWords?: string[];
-  blockedWords?: string[];
-  allowedPatterns?: string[];
-  blockedPatterns?: string[];
   callbackUrl?: string;
   wait?: boolean;
 }
@@ -121,6 +119,7 @@ export interface AgentOptions {
   maxSteps?: number;
   maxPages?: number;
   allowNavigation?: boolean;
+  /** Attach a base64 PNG (viewport) of each page the agent reads to that step as `screenshot`. */
   includeScreenshots?: boolean;
   timeout?: number;
   callbackUrl?: string;
@@ -154,6 +153,7 @@ export interface RankOptions {
 export interface DatasetOptions {
   schema?: Record<string, string>;
   maxPages?: number;
+  /** `data` is always the records array; "csv" also returns them as CSV text in `csv`. */
   outputFormat?: "json" | "csv";
   timeout?: number;
   callbackUrl?: string;
@@ -270,7 +270,7 @@ export class MarkUDown {
       const status = await this._request<JobStatus>("GET", `/api/${queue}/${jobId}`);
       if (status.status === "completed") return status;
       if (status.status === "failed") throw new JobFailedError(status.error ?? "Job failed");
-      if (status.status === "not_found") throw new MarkUDownError(`Job ${jobId} not found`);
+      if (status.status === "not_found") throw new MarkUDownError(`Job ${jobId} not found`, 404);
       await new Promise((r) => setTimeout(r, this.pollInterval));
     }
     throw new MarkUDownError(`Polling timed out after ${this.pollTimeout}ms`);
@@ -360,10 +360,6 @@ export class MarkUDown {
       url,
       schema,
       extract_query: opts.extractQuery ?? "",
-      allowed_words: opts.allowedWords ?? [],
-      blocked_words: opts.blockedWords ?? [],
-      allowed_patterns: opts.allowedPatterns ?? [],
-      blocked_patterns: opts.blockedPatterns ?? [],
     };
     if (opts.extractionScope) body["extraction_scope"] = opts.extractionScope;
     if (opts.extractionTarget) body["extraction_target"] = opts.extractionTarget;
@@ -480,7 +476,8 @@ export class MarkUDown {
   // ── Agent ───────────────────────────────────────────────────────────────────
 
   /**
-   * AI autonomous navigation agent that clicks, scrolls and fills forms.
+   * AI navigation agent: reads the page (scrolling to load lazy content), follows links
+   * and answers the prompt. It does not click buttons or fill in forms.
    */
   async agent(url: string, prompt: string, opts: AgentOptions = {}): Promise<unknown> {
     const body: Record<string, unknown> = {
